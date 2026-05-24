@@ -1,0 +1,80 @@
+.app-shell {
+  min-height: 100svh;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+.builder-header h1 {
+  margin-bottom: 8px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.block-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-h);
+  background: var(--bg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.block-button:hover {
+  border-color: var(--accent-border);
+}
+
+.block-button:focus-visible,
+.grid-cell:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.block-button.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.block-swatch {
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.world-grid {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  overflow-x: auto;
+  max-width: 100%;
+  border: 2px solid var(--border);
+  background: #d7d7d7;
+  box-sizing: border-box;
+}
+
+.grid-cell {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #9e9e9e;
+  background: #eeeeee;
+  cursor: pointer;
+}
+
+.grid-cell:hover {
+  filter: brightness(0.94);
+}
