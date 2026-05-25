@@ -1,0 +1,9 @@
+Delegate to Codex (gpt-5.3-codex): Implement issue #8 - Block 조합 3
+
+Details:
+- When overwriting a block position with a combinable block, unlock and change to combined block.
+- Prevent clicking existing blocks to overwrite; only erase can remove.
+- Make code changes on branch fix/issue-8, commit and push.
+- Write unit or integration tests if applicable.
+
+Respond and commit messages in Korean.
