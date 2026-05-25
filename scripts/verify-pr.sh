@@ -18,11 +18,10 @@ if [[ -z "$PR_FILES" ]]; then
   exit 1
 fi
 
-DISALLOWED_REGEX='(^|/)(\\.codexprompt\\.txt|issue-[0-9]+-assignee\\.txt)$'
 DISALLOWED_ADDITIONS="$(python3 - <<'PY' "$PR_JSON"
 import json, sys, re
 payload = json.loads(sys.argv[1])
-pat = re.compile(r'(^|/)(\\.codexprompt\\.txt|issue-[0-9]+-assignee\\.txt)$')
+pat = re.compile(r'(^|/)(\.codexprompt\.txt|issue-[0-9]+-assignee\.txt)$')
 for item in payload.get('files', []):
     path = item.get('path', '')
     change = item.get('changeType', '')
@@ -51,6 +50,8 @@ printf '%s
 ' "$PR_FILES"
 
 echo "== Build =="
-npm run build
+BUILD_OUTPUT="$(npm run build 2>&1)"
+printf '%s
+' "$BUILD_OUTPUT"
 
 echo "✅ PR #$PR_NUMBER passed guard checks."

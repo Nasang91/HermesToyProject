@@ -14,8 +14,10 @@ mkdir -p "$ARTIFACT_DIR"
 
 cd "$REPO_ROOT"
 
-VERIFY_OUTPUT="$({ scripts/verify-pr.sh "$PR_NUMBER"; } 2>&1 || true)"
-BUILD_OUTPUT="$({ npm run build; } 2>&1 || true)"
+VERIFY_STATUS=0
+VERIFY_OUTPUT="$({ scripts/verify-pr.sh "$PR_NUMBER"; } 2>&1)" || VERIFY_STATUS=$?
+BUILD_STATUS=0
+BUILD_OUTPUT="$({ npm run build; } 2>&1)" || BUILD_STATUS=$?
 FILES_OUTPUT="$({ gh pr diff "$PR_NUMBER" --name-only; } 2>&1 || true)"
 DIFFSTAT_OUTPUT="$({ gh pr view "$PR_NUMBER" --json files; } 2>&1 || true)"
 BODY_FILE="$ARTIFACT_DIR/pr-${PR_NUMBER}-review.md"
@@ -25,10 +27,16 @@ if [[ -n "$SCREENSHOT_PATH" ]]; then
   MANUAL_STATUS="performed"
 fi
 
+MERGE_DECISION="blocked"
+if [[ $VERIFY_STATUS -eq 0 && $BUILD_STATUS -eq 0 ]]; then
+  MERGE_DECISION="ready"
+fi
+
 {
   printf '## Review Summary\n'
   printf -- '- PR: #%s\n' "$PR_NUMBER"
-  printf -- '- Verified at: %s\n\n' "$VERIFIED_AT"
+  printf -- '- Verified at: %s\n' "$VERIFIED_AT"
+  printf -- '- Merge readiness: %s\n\n' "$MERGE_DECISION"
 
   printf '## Validation Performed\n'
   printf -- '- Ran `scripts/verify-pr.sh %s`\n' "$PR_NUMBER"
@@ -43,12 +51,17 @@ fi
 
   printf '## Manual Verification\n'
   printf -- '- Confirmed expected behavior against issue/PR scope.\n'
-  printf -- '- No unexpected extra feature should be merged.\n'
   if [[ -n "$SCREENSHOT_PATH" ]]; then
     printf -- '- Screenshot evidence: %s\n' "$SCREENSHOT_PATH"
+  else
+    printf -- '- Screenshot evidence: not attached\n'
   fi
   printf '\n## Merge Decision\n'
-  printf -- '- Merge only if the above validation matches the requested scope.\n'
+  if [[ "$MERGE_DECISION" == "ready" ]]; then
+    printf -- '- READY: guard and build both passed. Merge may proceed.\n'
+  else
+    printf -- '- BLOCKED: do not merge until guard/build failures are resolved.\n'
+  fi
 } > "$BODY_FILE"
 
 echo "$BODY_FILE"
