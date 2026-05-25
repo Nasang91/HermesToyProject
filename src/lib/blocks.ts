@@ -11,6 +11,7 @@ export type BlockId =
   | 'muddy_water'
   | 'clay'
   | 'moss'
+  | 'charcoal'
 
 export type BlockType = {
   id: BlockId
@@ -37,6 +38,7 @@ export const blockTypes: BlockType[] = [
   { id: 'muddy_water', name: 'Muddy Water', color: '#6B4423', isDiscoverable: true },
   { id: 'clay', name: 'Clay', color: '#CD853F', isDiscoverable: true },
   { id: 'moss', name: 'Moss', color: '#6b8e23', isDiscoverable: true },
+  { id: 'charcoal', name: 'Charcoal', color: '#2f2f2f', isDiscoverable: true },
 ]
 
 export const recipes: Recipe[] = [
@@ -46,6 +48,7 @@ export const recipes: Recipe[] = [
   { ingredients: ['dirt', 'water'], result: 'muddy_water' },
   { ingredients: ['wood', 'dirt'], result: 'clay' },
   { ingredients: ['grass', 'water'], result: 'moss' },
+  { ingredients: ['sand', 'wood'], result: 'charcoal' },
 ]
 
 export const findCombinationResult = (
