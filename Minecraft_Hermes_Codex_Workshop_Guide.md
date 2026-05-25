@@ -731,6 +731,9 @@ Codex는 “답변형 챗봇”이 아니라 **구현 agent**다.
 - [ ] Vite React TS 프로젝트 생성
 - [ ] Git 초기화
 - [ ] 앱 실행 확인
+- [ ] gh auth login
+- [ ] Codex SandBox 설정 (commit/PR)
+- [ ] WebHook 설정 (GitHub Issue 모니터링)
 
 ## 기능
 - [ ] grid 렌더링
