@@ -1,0 +1,24 @@
+Implement issue #10 for the Hermes Toy Project.
+
+Issue summary (from GitHub #10):
+- Current: unlocking occurs when specific blocks are adjacent.
+- Change: When overwriting a specific block position with a combinable block, the game should unlock and replace the target block with the combined block. Prevent overwriting existing blocks by clicking; blocks must be removed only via the erase action.
+
+Requirements:
+1. Modify game logic so that when a player places a combinable block onto a specific position where combination is allowed, the system performs the combination immediately: (a) unlocks the feature (if applicable), and (b) replaces the target block with the combined block type.
+2. Disable click-based overwriting of existing blocks. If a player attempts to place a block onto an occupied tile via clicking, the action should be ignored. Blocks can only be removed by the erase tool/action.
+3. Keep changes minimal, follow existing code style and patterns.
+4. Add tests if the project has a test suite and a pattern for similar changes.
+5. After making changes, run these commands in the repository root:
+   git add -A && git commit -m "fix(issue-10): implement block overwrite combine and erase restriction" && git push -u origin fix/issue-10
+6. If there are no code changes, create an empty commit instead:
+   git commit --allow-empty -m "ci: pipeline test (closes #10)" && git push -u origin fix/issue-10
+7. Finally, create a PR:
+   gh pr create --title "fix: issue-10 Block 조합 3" --body "Closes #10" --base main --head fix/issue-10
+
+Return the PR URL in your output when finished.
+
+Notes:
+- Do not change unrelated files.
+- If you cannot edit files, explain why and exit with a non-zero status.
+- Use the repository at the current working directory.
