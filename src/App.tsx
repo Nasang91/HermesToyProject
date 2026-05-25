@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-
-type BlockId = 'grass' | 'stone' | 'dirt' | 'sand' | 'wood' | 'water' | 'flower' | 'brick' | 'glass' | 'muddy_water' | 'clay'
-
-type BlockType = {
-  id: BlockId
-  name: string
-  color: string
-  isDiscoverable: boolean
-}
+import {
+  blockTypes,
+  findBlockById,
+  findCombinationResult,
+  isBlockId,
+  type BlockId,
+  type BlockType,
+  recipes,
+} from './lib/blocks'
 
 type GridCell = BlockType | null
 type Grid = GridCell[][]
@@ -16,67 +16,16 @@ type SelectedTool =
   | { kind: 'block'; block: BlockType }
   | { kind: 'eraser' }
 
-type Recipe = {
-  ingredients: [BlockId, BlockId]
-  result: BlockId
-}
-
 const GRID_COLUMNS = 20
 const GRID_ROWS = 15
 const STORAGE_KEY = 'miniBlockBuilder_grid'
 const DISCOVERED_KEY = 'miniBlockBuilder_discovered'
-
-const blockTypes: BlockType[] = [
-  { id: 'grass', name: 'Grass', color: '#4caf50', isDiscoverable: false },
-  { id: 'stone', name: 'Stone', color: '#8e8e8e', isDiscoverable: false },
-  { id: 'dirt', name: 'Dirt', color: '#8b5a2b', isDiscoverable: false },
-  { id: 'sand', name: 'Sand', color: '#f4c542', isDiscoverable: false },
-  { id: 'wood', name: 'Wood', color: '#8B4513', isDiscoverable: false },
-  { id: 'water', name: 'Water', color: '#1E90FF', isDiscoverable: false },
-  { id: 'flower', name: 'Flower', color: '#FF69B4', isDiscoverable: true },
-  { id: 'brick', name: 'Brick', color: '#B22222', isDiscoverable: true },
-  { id: 'glass', name: 'Glass', color: '#87CEEB', isDiscoverable: true },
-  { id: 'muddy_water', name: 'Muddy Water', color: '#6B4423', isDiscoverable: true },
-  { id: 'clay', name: 'Clay', color: '#CD853F', isDiscoverable: true },
-]
-
-const recipes: Recipe[] = [
-  { ingredients: ['grass', 'sand'], result: 'flower' },
-  { ingredients: ['stone', 'dirt'], result: 'brick' },
-  { ingredients: ['sand', 'water'], result: 'glass' },
-  { ingredients: ['dirt', 'water'], result: 'muddy_water' },
-  { ingredients: ['wood', 'dirt'], result: 'clay' },
-]
-
-const findCombinationResult = (
-  existingBlockId: BlockId,
-  placedBlockId: BlockId,
-): BlockId | null => {
-  for (const recipe of recipes) {
-    const [ingredient1, ingredient2] = recipe.ingredients
-
-    if (
-      (existingBlockId === ingredient1 && placedBlockId === ingredient2) ||
-      (existingBlockId === ingredient2 && placedBlockId === ingredient1)
-    ) {
-      return recipe.result
-    }
-  }
-
-  return null
-}
 
 // Start every cell empty; each position later stores the placed block type.
 const createEmptyGrid = (): Grid =>
   Array.from({ length: GRID_ROWS }, () =>
     Array.from<GridCell>({ length: GRID_COLUMNS }).fill(null),
   )
-
-const isBlockId = (value: unknown): value is BlockId =>
-  typeof value === 'string' && blockTypes.some((block) => block.id === value)
-
-const findBlockById = (id: BlockId): BlockType =>
-  blockTypes.find((block) => block.id === id) ?? blockTypes[0]
 
 const parseSavedGrid = (savedValue: string): Grid | null => {
   const parsed: unknown = JSON.parse(savedValue)

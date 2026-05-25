@@ -1,0 +1,38 @@
+# Issue 19: 테스트: 새로운 Block 조합 2
+
+작업 목표:
+- discoverable block 하나 추가: moss
+- 조합 규칙: grass + water => moss
+- 기존 조합 시스템에 자연스럽게 통합 (데이터 구조, 레지스트리, UI 노출)
+- UI/동작이 깨지지 않도록 유지
+- 변경사항 커밋/푸시, PR 생성, `scripts/verify-pr.sh <PR번호>` 실행, PR 리뷰 코멘트 작성, 빌드/검증 통과 시 머지까지 자동화
+
+제약 및 지침:
+1. 레포 경로: /Users/noyeah_bot/Hermes Toy Project (이미 checkout 된 상태에서 작업)
+2. 베이스 브랜치: main (최신화됨)
+3. 작업 브랜치: fix/issue-19
+4. PR 본문에는 변경 요약과 테스트/검증 항목을 포함
+5. 절대로 임시/지시용 파일(.codexprompt.txt, issue-*-assignee.txt 등)을 PR에 추가하지 마세요. 필요한 모든 메타는 커밋 메시지와 PR 본문에 기록하세요.
+6. Day 1/2/3 범위를 이유로 기능을 삭제하거나 PR을 닫지 마세요.
+7. 커밋 메시지는 conventional commits 스타일을 사용하세요. (예: feat: add moss discoverable block)
+8. 가능한 경우 관련 단위/통합 테스트를 추가하세요.
+9. PR을 만들면 PR 번호를 출력하고 `scripts/verify-pr.sh <PR번호>` 를 실행하세요. 실패하면 머지하지 말고 실패 로그와 차단 사유를 PR에 코멘트로 남기세요.
+10. `gh pr diff`로 변경사항을 확인하세요. 검증 스크린샷을 만들 수 있으면 `docs/observable-codex-workflow.md` 에 따라 스크린샷 저장 및 리뷰 코멘트에 경로 첨부하세요.
+11. PR 리뷰 코멘트는 `scripts/review-pr.sh <PR번호> [screenshot-path]` 를 통해 생성된 Markdown을 사용하세요. 코멘트에 반드시: (a) 무엇을 검증했는지, (b) `scripts/verify-pr.sh` 결과, (c) 빌드 결과, (d) 수동 확인 내용, (e) 스크린샷 경로(있다면)
+12. 머지 조건: verify script 통과, 빌드 성공, 코드/문서/테스트가 있는 PR일 것. 위반 시 머지 금지.
+13. 머지 방법: squash merge + delete branch (`gh pr merge --squash --delete-branch`) 만 사용.
+14. 최종적으로 main으로 돌아가서 이슈가 자동으로 닫혔는지 확인하고, 닫히지 않았다면 수동으로 닫으세요.
+
+구현 힌트:
+- 조합 시스템 파일 위치를 찾고(예: src/blocks, src/combiner, data/blocks.json 등), discoverable blocks 등록 방식(데코레이터, 레지스트리 JSON, DB 등)에 맞춰 moss 항목 추가
+- UI 노출이 필요하면 관련 템플릿/컴포넌트에 노출 목록을 갱신
+- 기존 테스트가 있다면 유사 테스트 추가 (grass + water => moss)
+
+출력 요구:
+- 모든 콘솔 로그를 기록하고, 주요 단계(브랜치 생성, 파일 변경, 커밋, 푸시, PR 생성, verify 결과, 빌드 결과, 리뷰 코멘트, 머지/차단)를 명확히 출력하세요.
+- PR 번호와 URL을 반드시 출력하세요.
+- 실패 시 실패 원인(스크립트 출력)과 차단 사유를 출력하세요.
+
+권한: 이 환경에서 git push, gh pr create, gh pr diff, scripts/*.sh 실행이 가능합니다.
+
+감사합니다.

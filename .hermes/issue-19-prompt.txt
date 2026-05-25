@@ -1,0 +1,7 @@
+You are implementing GitHub issue #19 in /Users/noyeah_bot/Hermes Toy Project.
+
+Issue summary:
+- Add one new discoverable block
+- Integrate it into the existing combination system
+- Keep UI and behavior working
+- Target combina...
