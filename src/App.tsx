@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
-type BlockId = 'grass' | 'stone' | 'dirt' | 'sand' | 'wood' | 'water' | 'flower' | 'brick' | 'glass' | 'muddy_water'
+type BlockId = 'grass' | 'stone' | 'dirt' | 'sand' | 'wood' | 'water' | 'flower' | 'brick' | 'glass' | 'muddy_water' | 'clay'
 
 type BlockType = {
   id: BlockId
@@ -37,6 +37,7 @@ const blockTypes: BlockType[] = [
   { id: 'brick', name: 'Brick', color: '#B22222', isDiscoverable: true },
   { id: 'glass', name: 'Glass', color: '#87CEEB', isDiscoverable: true },
   { id: 'muddy_water', name: 'Muddy Water', color: '#6B4423', isDiscoverable: true },
+  { id: 'clay', name: 'Clay', color: '#CD853F', isDiscoverable: true },
 ]
 
 const recipes: Recipe[] = [
@@ -44,6 +45,7 @@ const recipes: Recipe[] = [
   { ingredients: ['stone', 'dirt'], result: 'brick' },
   { ingredients: ['sand', 'water'], result: 'glass' },
   { ingredients: ['dirt', 'water'], result: 'muddy_water' },
+  { ingredients: ['wood', 'dirt'], result: 'clay' },
 ]
 
 const findCombinationResult = (
