@@ -46,6 +46,24 @@ const recipes: Recipe[] = [
   { ingredients: ['dirt', 'water'], result: 'muddy_water' },
 ]
 
+const findCombinationResult = (
+  existingBlockId: BlockId,
+  placedBlockId: BlockId,
+): BlockId | null => {
+  for (const recipe of recipes) {
+    const [ingredient1, ingredient2] = recipe.ingredients
+
+    if (
+      (existingBlockId === ingredient1 && placedBlockId === ingredient2) ||
+      (existingBlockId === ingredient2 && placedBlockId === ingredient1)
+    ) {
+      return recipe.result
+    }
+  }
+
+  return null
+}
+
 // Start every cell empty; each position later stores the placed block type.
 const createEmptyGrid = (): Grid =>
   Array.from({ length: GRID_ROWS }, () =>
@@ -194,12 +212,53 @@ function App() {
   const updateCell = (rowIndex: number, columnIndex: number) => {
     // Build a new grid so React can detect and render the changed cell.
     setGrid((currentGrid) => {
+      const currentCell = currentGrid[rowIndex][columnIndex]
+
+      if (selectedTool.kind === 'eraser') {
+        const newGrid = currentGrid.map((row, currentRowIndex) =>
+          row.map((cell, currentColumnIndex) =>
+            currentRowIndex === rowIndex && currentColumnIndex === columnIndex
+              ? null
+              : cell,
+          ),
+        )
+        checkForRecipes(newGrid)
+        return newGrid
+      }
+
+      if (currentCell) {
+        const combinationResult = findCombinationResult(currentCell.id, selectedTool.block.id)
+
+        if (!combinationResult) {
+          return currentGrid
+        }
+
+        const combinedBlock = findBlockById(combinationResult)
+        const newGrid = currentGrid.map((row, currentRowIndex) =>
+          row.map((cell, currentColumnIndex) =>
+            currentRowIndex === rowIndex && currentColumnIndex === columnIndex
+              ? combinedBlock
+              : cell,
+          ),
+        )
+
+        if (!discoveredBlocks.has(combinationResult)) {
+          setDiscoveredBlocks((prev) => {
+            const updated = new Set(prev)
+            updated.add(combinationResult)
+            return updated
+          })
+          setStatusMessage(`새로운 블록 발견: ${combinedBlock.name}!`)
+        }
+
+        checkForRecipes(newGrid)
+        return newGrid
+      }
+
       const newGrid = currentGrid.map((row, currentRowIndex) =>
         row.map((cell, currentColumnIndex) =>
           currentRowIndex === rowIndex && currentColumnIndex === columnIndex
-            ? selectedTool.kind === 'block'
-              ? selectedTool.block
-              : null
+            ? selectedTool.block
             : cell,
         ),
       )
