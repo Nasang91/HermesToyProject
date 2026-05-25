@@ -12,9 +12,7 @@ type BlockType = {
 
 type GridCell = BlockType | null
 type Grid = GridCell[][]
-type SelectedTool =
-  | { kind: 'block'; block: BlockType }
-  | { kind: 'eraser' }
+type SelectedTool = { kind: 'block'; block: BlockType }
 
 type Recipe = {
   ingredients: [BlockId, BlockId]
@@ -23,7 +21,6 @@ type Recipe = {
 
 const GRID_COLUMNS = 20
 const GRID_ROWS = 15
-const STORAGE_KEY = 'miniBlockBuilder_grid'
 const DISCOVERED_KEY = 'miniBlockBuilder_discovered'
 
 const blockTypes: BlockType[] = [
@@ -70,52 +67,8 @@ const createEmptyGrid = (): Grid =>
     Array.from<GridCell>({ length: GRID_COLUMNS }).fill(null),
   )
 
-const isBlockId = (value: unknown): value is BlockId =>
-  typeof value === 'string' && blockTypes.some((block) => block.id === value)
-
 const findBlockById = (id: BlockId): BlockType =>
   blockTypes.find((block) => block.id === id) ?? blockTypes[0]
-
-const parseSavedGrid = (savedValue: string): Grid | null => {
-  const parsed: unknown = JSON.parse(savedValue)
-
-  if (!Array.isArray(parsed) || parsed.length !== GRID_ROWS) {
-    return null
-  }
-
-  const restoredGrid: Grid = []
-
-  for (const row of parsed) {
-    if (!Array.isArray(row) || row.length !== GRID_COLUMNS) {
-      return null
-    }
-
-    const restoredRow: GridCell[] = []
-
-    for (const cell of row) {
-      if (cell === null) {
-        restoredRow.push(null)
-        continue
-      }
-
-      if (
-        typeof cell === 'object' &&
-        cell !== null &&
-        'id' in cell &&
-        isBlockId(cell.id)
-      ) {
-        restoredRow.push(findBlockById(cell.id))
-        continue
-      }
-
-      return null
-    }
-
-    restoredGrid.push(restoredRow)
-  }
-
-  return restoredGrid
-}
 
 function App() {
   const [selectedTool, setSelectedTool] = useState<SelectedTool>({
@@ -214,18 +167,6 @@ function App() {
     setGrid((currentGrid) => {
       const currentCell = currentGrid[rowIndex][columnIndex]
 
-      if (selectedTool.kind === 'eraser') {
-        const newGrid = currentGrid.map((row, currentRowIndex) =>
-          row.map((cell, currentColumnIndex) =>
-            currentRowIndex === rowIndex && currentColumnIndex === columnIndex
-              ? null
-              : cell,
-          ),
-        )
-        checkForRecipes(newGrid)
-        return newGrid
-      }
-
       if (currentCell) {
         const combinationResult = findCombinationResult(currentCell.id, selectedTool.block.id)
 
@@ -267,39 +208,6 @@ function App() {
     })
   }
 
-  const saveGrid = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(grid))
-    setStatusMessage('Saved!')
-  }
-
-  const loadGrid = () => {
-    const savedGrid = localStorage.getItem(STORAGE_KEY)
-
-    if (!savedGrid) {
-      setStatusMessage('No saved grid found.')
-      return
-    }
-
-    try {
-      const parsedGrid = parseSavedGrid(savedGrid)
-
-      if (!parsedGrid) {
-        setStatusMessage('Saved grid is corrupt.')
-        return
-      }
-
-      setGrid(parsedGrid)
-      setStatusMessage('Loaded!')
-    } catch {
-      setStatusMessage('Saved grid is corrupt.')
-    }
-  }
-
-  const resetGrid = () => {
-    setGrid(createEmptyGrid())
-    setStatusMessage('Reset!')
-  }
-
   return (
     <main className="app-shell">
       <header className="builder-header">
@@ -333,31 +241,6 @@ function App() {
               )
             })}
 
-          <button
-            type="button"
-            className={`block-button eraser-button ${
-              selectedTool.kind === 'eraser' ? 'selected' : ''
-            }`}
-            onClick={() => setSelectedTool({ kind: 'eraser' })}
-            aria-pressed={selectedTool.kind === 'eraser'}
-          >
-            <span className="eraser-icon" aria-hidden="true">
-              x
-            </span>
-            Eraser
-          </button>
-        </div>
-
-        <div className="action-row" aria-label="Grid actions">
-          <button type="button" className="action-button" onClick={saveGrid}>
-            Save
-          </button>
-          <button type="button" className="action-button" onClick={loadGrid}>
-            Load
-          </button>
-          <button type="button" className="action-button" onClick={resetGrid}>
-            Reset
-          </button>
         </div>
 
         <p className="status-message" role="status" aria-live="polite">
