@@ -55,3 +55,25 @@ printf '%s
 ' "$BUILD_OUTPUT"
 
 echo "✅ PR #$PR_NUMBER passed guard checks."
+
+# Guard: ensure .js files under src/blocks are actually referenced somewhere in the codebase
+echo "== Unreferenced src/blocks files check =="
+unused_blocks=""
+while IFS= read -r f; do
+  # basename without extension
+  name="$(basename "$f" .js)"
+  # look for references to the basename or the relative path elsewhere in repo,
+  # excluding node_modules/dist and excluding the file itself
+  if ! grep -R --exclude-dir=node_modules --exclude-dir=dist -n -- "\b${name}\b" . | grep -v "^${f}:" >/dev/null 2>&1 && \
+     ! grep -R --exclude-dir=node_modules --exclude-dir=dist -n -- "${f}" . | grep -v "^${f}:" >/dev/null 2>&1; then
+    unused_blocks+="${f}\n"
+  fi
+done < <(find src/blocks -type f -name '*.js' 2>/dev/null || true)
+
+if [[ -n "$unused_blocks" ]]; then
+  echo "❌ The following src/blocks/*.js files appear to be unreferenced (imports/uses not found):"
+  printf '%s' "$unused_blocks"
+  echo
+  echo "Please remove unused placeholder files or add references."
+  exit 1
+fi
