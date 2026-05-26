@@ -36,10 +36,27 @@ if [[ -n "$DISALLOWED_ADDITIONS" ]]; then
   exit 1
 fi
 
-CODE_FILE_REGEX='^(src/.*\.(ts|tsx|js|jsx|css|scss|html)|scripts/.*\.sh|docs/.*\.md|package\.json)$'
+if printf '%s
+' "$PR_FILES" | grep -E '^(\.hermes/|\.hermes_|.*\.tmp$|.*\.log$)' >/dev/null; then
+  echo "❌ PR #$PR_NUMBER contains local runtime/review artifact files that must never be merged."
+  printf '%s
+' "$PR_FILES" | grep -E '^(\.hermes/|\.hermes_|.*\.tmp$|.*\.log$)'
+  exit 1
+fi
+
+CODE_FILE_REGEX='^(src/.*\.(ts|tsx|js|jsx|css|scss|html)|scripts/.*\.sh|docs/.*\.md|package\.json|package-lock\.json)$'
 if ! printf '%s
 ' "$PR_FILES" | grep -E "$CODE_FILE_REGEX" >/dev/null; then
   echo "❌ PR #$PR_NUMBER has no app, automation, or documentation files changed; refusing auto-merge."
+  printf '%s
+' "$PR_FILES"
+  exit 1
+fi
+
+if printf '%s
+' "$PR_FILES" | grep -E '^\.github/workflows/' >/dev/null && ! printf '%s
+' "$PR_FILES" | grep -E '^((scripts/.*\.sh)|(docs/.*\.md))$' >/dev/null; then
+  echo "❌ PR #$PR_NUMBER only changes GitHub workflow files without matching implementation or automation changes."
   printf '%s
 ' "$PR_FILES"
   exit 1
