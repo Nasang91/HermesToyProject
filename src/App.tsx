@@ -1,7 +1,20 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
-type BlockId = 'grass' | 'stone' | 'dirt' | 'sand' | 'wood' | 'water' | 'flower' | 'brick' | 'glass' | 'muddy_water' | 'clay'
+type BlockId =
+  | 'grass'
+  | 'stone'
+  | 'dirt'
+  | 'sand'
+  | 'wood'
+  | 'water'
+  | 'fire'
+  | 'wind'
+  | 'flower'
+  | 'brick'
+  | 'glass'
+  | 'muddy_water'
+  | 'clay'
 
 type BlockType = {
   id: BlockId
@@ -33,6 +46,8 @@ const blockTypes: BlockType[] = [
   { id: 'sand', name: 'Sand', color: '#f4c542', isDiscoverable: false },
   { id: 'wood', name: 'Wood', color: '#8B4513', isDiscoverable: false },
   { id: 'water', name: 'Water', color: '#1E90FF', isDiscoverable: false },
+  { id: 'fire', name: 'Fire', color: '#FF4500', isDiscoverable: false },
+  { id: 'wind', name: 'Wind', color: '#E0FFFF', isDiscoverable: false },
   { id: 'flower', name: 'Flower', color: '#FF69B4', isDiscoverable: true },
   { id: 'brick', name: 'Brick', color: '#B22222', isDiscoverable: true },
   { id: 'glass', name: 'Glass', color: '#87CEEB', isDiscoverable: true },
