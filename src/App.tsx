@@ -58,6 +58,7 @@ const blockTypes: BlockType[] = [
 const recipes: Recipe[] = [
   { ingredients: ['grass', 'sand'], result: 'flower' },
   { ingredients: ['stone', 'dirt'], result: 'brick' },
+  { ingredients: ['fire', 'sand'], result: 'glass' },
   { ingredients: ['sand', 'water'], result: 'glass' },
   { ingredients: ['dirt', 'water'], result: 'muddy_water' },
   { ingredients: ['wood', 'dirt'], result: 'clay' },
