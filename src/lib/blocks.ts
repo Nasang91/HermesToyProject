@@ -5,6 +5,8 @@ export type BlockId =
   | 'sand'
   | 'wood'
   | 'water'
+  | 'fire'
+  | 'wind'
   | 'flower'
   | 'brick'
   | 'glass'
@@ -32,6 +34,9 @@ export const blockTypes: BlockType[] = [
   { id: 'sand', name: 'Sand', color: '#f4c542', isDiscoverable: false },
   { id: 'wood', name: 'Wood', color: '#8B4513', isDiscoverable: false },
   { id: 'water', name: 'Water', color: '#1E90FF', isDiscoverable: false },
+  // New real blocks made discoverable in the running app
+  { id: 'fire', name: 'Fire', color: '#FF4500', isDiscoverable: true },
+  { id: 'wind', name: 'Wind', color: '#E0FFFF', isDiscoverable: true },
   { id: 'flower', name: 'Flower', color: '#FF69B4', isDiscoverable: true },
   { id: 'brick', name: 'Brick', color: '#B22222', isDiscoverable: true },
   { id: 'glass', name: 'Glass', color: '#87CEEB', isDiscoverable: true },
@@ -49,6 +54,9 @@ export const recipes: Recipe[] = [
   { ingredients: ['wood', 'dirt'], result: 'clay' },
   { ingredients: ['grass', 'water'], result: 'moss' },
   { ingredients: ['sand', 'wood'], result: 'charcoal' },
+  // Recipes involving the newly added real blocks
+  { ingredients: ['fire', 'wood'], result: 'charcoal' },
+  { ingredients: ['wind', 'grass'], result: 'flower' },
 ]
 
 export const findCombinationResult = (
