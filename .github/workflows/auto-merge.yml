@@ -1,0 +1,88 @@
+name: Auto-enable PR auto-merge
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+  check_run:
+    types: [completed]
+  check_suite:
+    types: [completed]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  pull-requests: write
+  contents: read
+  checks: read
+  statuses: read
+
+jobs:
+  enable-auto-merge:
+    name: Evaluate PR and enable auto-merge when safe
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (needed to read repository if required)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Evaluate and enable auto-merge
+        uses: actions/github-script@v6
+        with:
+          result-encoding: string
+          script: |
+            // Context: github, context, core are available
+            const pr = context.payload.pull_request || (await github.rest.pulls.get({owner: context.repo.owner, repo: context.repo.repo, pull_number: context.issue.number})).data;
+            if (!pr) {
+              core.info('No PR found in event context — exiting.');
+              return 'no-pr';
+            }
+
+            if (pr.merged || pr.state !== 'open') {
+              core.info(`PR #${pr.number} is not open or already merged (state=${pr.state}).`);
+              return 'not-open';
+            }
+
+            const sha = pr.head.sha;
+
+            // 1) Require status checks be green
+            const combined = await github.rest.repos.getCombinedStatusForRef({ owner: context.repo.owner, repo: context.repo.repo, ref: sha });
+            core.info(`combined state for ${sha}: ${combined.data.state}`);
+            if (combined.data.state !== 'success') {
+              core.info('Status checks are not all successful — skipping auto-merge.');
+              return 'checks-not-green';
+            }
+
+            // 2) Require at least one approval review (customize as needed)
+            const reviews = await github.rest.pulls.listReviews({ owner: context.repo.owner, repo: context.repo.repo, pull_number: pr.number });
+            const approved = reviews.data.some(r => r.state === 'APPROVED');
+            if (!approved) {
+              core.info('No APPROVED review found — skipping auto-merge.');
+              return 'no-approval';
+            }
+
+            // 3) Block on specific labels (customize label names if you use others)
+            const labels = pr.labels.map(l => l.name.toLowerCase());
+            const blocked = labels.includes('do not merge') || labels.includes('wip') || labels.includes('hold');
+            if (blocked) {
+              core.info(`PR has blocking label(s): ${labels.join(', ')} — skipping auto-merge.`);
+              return 'blocked-label';
+            }
+
+            // 4) Enable Auto-merge via GraphQL
+            try {
+              const res = await github.graphql(`
+                mutation ($prId: ID!) {
+                  enablePullRequestAutoMerge(input: { pullRequestId: $prId, mergeMethod: SQUASH }) {
+                    pullRequest { number }
+                  }
+                }
+              `, { prId: pr.node_id });
+
+              core.info(`Auto-merge enabled for PR #${pr.number}`);
+              return 'enabled';
+            } catch (err) {
+              core.error(`Failed to enable auto-merge: ${err.message}`);
+              core.setFailed(err.message);
+            }
