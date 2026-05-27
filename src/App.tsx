@@ -55,12 +55,12 @@ const blockTypes: BlockType[] = [
   { id: 'clay', name: 'Clay', color: '#CD853F', isDiscoverable: true },
 ]
 
-  58|const recipes: Recipe[] = [
-  59|  { ingredients: ['grass', 'sand'], result: 'flower' },
-  60|  { ingredients: ['stone', 'dirt'], result: 'brick' },
+const recipes: Recipe[] = [
+  { ingredients: ['grass', 'sand'], result: 'flower' },
+  { ingredients: ['stone', 'dirt'], result: 'brick' },
   { ingredients: ['wind', 'stone'], result: 'brick' },
-  61|  { ingredients: ['fire', 'sand'], result: 'glass' },
-  62|  { ingredients: ['sand', 'water'], result: 'glass' },
+  { ingredients: ['fire', 'sand'], result: 'glass' },
+  { ingredients: ['sand', 'water'], result: 'glass' },
   { ingredients: ['dirt', 'water'], result: 'muddy_water' },
   { ingredients: ['wood', 'dirt'], result: 'clay' },
 ]
