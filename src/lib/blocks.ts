@@ -14,6 +14,7 @@ export type BlockId =
   | 'clay'
   | 'moss'
   | 'charcoal'
+  | 'plate'
 
 export type BlockType = {
   id: BlockId
@@ -44,6 +45,8 @@ export const blockTypes: BlockType[] = [
   { id: 'clay', name: 'Clay', color: '#CD853F', isDiscoverable: true },
   { id: 'moss', name: 'Moss', color: '#6b8e23', isDiscoverable: true },
   { id: 'charcoal', name: 'Charcoal', color: '#2f2f2f', isDiscoverable: true },
+  // Plate is craftable but should not be shown until discovered by the player
+  { id: 'plate', name: 'Plate', color: '#F5DEB3', isDiscoverable: false },
 ]
 
 export const recipes: Recipe[] = [
@@ -57,6 +60,8 @@ export const recipes: Recipe[] = [
   // Recipes involving the newly added real blocks
   { ingredients: ['fire', 'wood'], result: 'charcoal' },
   { ingredients: ['wind', 'grass'], result: 'flower' },
+  // clay + fire -> plate
+  { ingredients: ['clay', 'fire'], result: 'plate' },
 ]
 
 export const findCombinationResult = (
