@@ -44,12 +44,28 @@ if printf '%s
   exit 1
 fi
 
-CODE_FILE_REGEX='^(src/.*\.(ts|tsx|js|jsx|css|scss|html)|scripts/.*\.sh|docs/.*\.md|package\.json|package-lock\.json)$'
+ALLOWED_FILE_REGEX='^(src/App\.tsx|src/.*\.(ts|tsx|js|jsx|css|scss|html)|scripts/.*\.sh|docs/.*\.md|package\.json|package-lock\.json)$'
 if ! printf '%s
-' "$PR_FILES" | grep -E "$CODE_FILE_REGEX" >/dev/null; then
-  echo "❌ PR #$PR_NUMBER has no app, automation, or documentation files changed; refusing auto-merge."
+' "$PR_FILES" | grep -E "$ALLOWED_FILE_REGEX" >/dev/null; then
+  echo "❌ PR #$PR_NUMBER has no allowed app, automation, or documentation files changed; refusing auto-merge."
   printf '%s
 ' "$PR_FILES"
+  exit 1
+fi
+
+if printf '%s
+' "$PR_FILES" | grep -Ev "$ALLOWED_FILE_REGEX|^\.github/workflows/" >/dev/null; then
+  echo "❌ PR #$PR_NUMBER contains files outside the allowed implementation paths."
+  printf '%s
+' "$PR_FILES" | grep -Ev "$ALLOWED_FILE_REGEX|^\.github/workflows/"
+  exit 1
+fi
+
+if printf '%s
+' "$PR_FILES" | grep -E '^src/blocks/' >/dev/null; then
+  echo "❌ PR #$PR_NUMBER changes src/blocks/*, but this project's running app is currently driven by src/App.tsx."
+  printf '%s
+' "$PR_FILES" | grep -E '^src/blocks/'
   exit 1
 fi
 
@@ -60,6 +76,31 @@ if printf '%s
   printf '%s
 ' "$PR_FILES"
   exit 1
+fi
+
+ISSUE_REF="$(gh pr view "$PR_NUMBER" --json body --jq '.body' | grep -Eo '#[0-9]+' | head -n1 | tr -d '#')"
+if [[ -n "$ISSUE_REF" ]]; then
+  ISSUE_JSON="$(gh issue view "$ISSUE_REF" --json title,body 2>/dev/null || true)"
+  if [[ -n "$ISSUE_JSON" ]]; then
+    ISSUE_TEXT="$(python3 - <<'PY' "$ISSUE_JSON"
+import json, sys
+payload = json.loads(sys.argv[1])
+print((payload.get('title') or '') + '\n' + (payload.get('body') or ''))
+PY
+)"
+    if printf '%s' "$ISSUE_TEXT" | grep -Eiq 'fire[[:space:]]*\+.*sand|sand[[:space:]]*\+.*fire|glass'; then
+      if ! gh pr diff "$PR_NUMBER" | grep -Eiq 'fire|sand|glass'; then
+        echo "❌ PR #$PR_NUMBER does not appear to implement the referenced issue semantics (expected fire/sand/glass changes)."
+        exit 1
+      fi
+    fi
+    if printf '%s' "$ISSUE_TEXT" | grep -Eiq 'wind'; then
+      if ! gh pr diff "$PR_NUMBER" | grep -Eiq 'wind'; then
+        echo "❌ PR #$PR_NUMBER does not mention required issue keyword: wind"
+        exit 1
+      fi
+    fi
+  fi
 fi
 
 echo "== Changed files =="
